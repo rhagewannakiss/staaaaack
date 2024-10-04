@@ -3,36 +3,33 @@
 #include <assert.h>
 #include <string.h>
 #include <search.h>
-#include "stack.h"
+#include <stdint.h>
+#include  "stack.h"
+#include   "hash.h"
 
 
 //--------------------------------- MAIN -------------------------------------
 
-int main(/*int argc, char* argv[] или не нужно*/) {
+int main(/*int argc, char* argv[] */) {
+
+
+
     Stack_struct stk = {};
-    Ctor_stack_func(&stk);
+    Ctor_stack(&stk);
 
-    push_func(&stk, 'a');
+    stack_push(&stk, 'a'); // идея: сделать пуш на несколько элементов одновременно ??? ну и поп можно тоже
 
-    fprintf(stderr, "Num of elems: %d \n", stk.nElems);
-    fprintf(stderr, "Stack after push: [");
-    for (size_t i = 0; i < stk.nElems; i++) {
-        fprintf(stderr, " %c", (stk.data)[i]);
-    }
-    fprintf(stderr, "]\n\n");
+    fprintf(stderr, "Num of elems: %ld \n", stk.number_of_elems);
+    printf_stack(&stk);
+
 
     Stack_t top_elem = 0;
-    pop_func(&stk, &top_elem);
+    stack_pop(&stk, &top_elem);
     fprintf(stderr, "Popped element: %c \n", top_elem);
 
-    fprintf(stderr, "Num of elems: %d\n", stk.nElems);
-    fprintf(stderr, "Stack after pop: [");
-    for (size_t i = 0; i < stk.nElems; i++) {
-        fprintf(stderr, " %c", (stk.data)[i]);
-    }
-    fprintf(stderr, "]\n\n");
+    printf_stack(&stk);
 
-    Dtor_stack_func(&stk);
+    Dtor_stack(&stk);
     return 0;
 }
 
