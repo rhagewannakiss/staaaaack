@@ -14,14 +14,19 @@ int main(/*int argc, char* argv[] */) {
     stack_struct stk = {};
     Ctor_stack(&stk);
 
-    stack_push(&stk, 'a');
+    for (int i = 0; i < 200; i++) {
+        stack_push(&stk, 'a');
+    }
 
-    fprintf(stderr, "Num of elems: %ld \n", stk.number_of_elems);
     dump(&stk);
 
 
     stack_t top_elem = 0;
-    stack_pop(&stk, &top_elem);
+
+    for (int i = 0; i < 200; i++) {
+        stack_pop(&stk, &top_elem);
+    }
+
     fprintf(stderr, "Popped element: %lu \n", top_elem);
     dump(&stk);
 

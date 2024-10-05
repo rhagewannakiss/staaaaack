@@ -3,12 +3,12 @@
 #include   <assert.h>
 #include   <string.h>
 #include   <stdint.h>
-#include <inttypes.h>
 #include    "stack.h"
 #include     "hash.h"
 
-static void_sex    let_the_canaries_sing(stack_struct* stack);
 static const char* poison_checker(stack_struct* stack, ssize_t i);
+static void_sex    let_the_canaries_sing(stack_struct* stack);
+static stack_error stack_realloc(stack_struct* stack);
 static void_sex    hash_update(stack_struct* stack);
 static void_sex    poison(stack_struct* stack);
 
@@ -17,6 +17,7 @@ static void_sex    poison(stack_struct* stack);
 stack_error Ctor_stack(stack_struct* stack) {
     if (stack == NULL) {
         stack->error_code = stack_error::NULL_PTR;
+        return stack->error_code;
     }
 
     stack->canary_beginning = 0xB00BA;
@@ -27,6 +28,7 @@ stack_error Ctor_stack(stack_struct* stack) {
 
     if (stack->data == NULL) {
         stack->error_code = stack_error::MEM_ALLOC_ERR;
+        return stack->error_code;
     }
 
     let_the_canaries_sing(stack);
@@ -81,28 +83,32 @@ stack_error stack_push(stack_struct* stack, stack_t new_elem) {
 //--------------------------------- POP --------------------------------------
 
 stack_error stack_pop(stack_struct* stack, stack_t* top_elem) {
-    stack->error_code = EVERYTHING_IS_OK;
-
     stack_assert(stack);
 
-    if (stack->number_of_elems == 0) {
+    if (stack->number_of_elems <= 0) {
         stack->error_code = stack_error::ZERO_ELEMS;
+        return stack->error_code;
     }
 
     if (top_elem == NULL) {
-        stack->error_code =  stack_error::EMPTY_TOP_ELEM;
+        stack->error_code = stack_error::EMPTY_TOP_ELEM;
+        return stack->error_code;
     }
+
+    fprintf(stderr, "n of elems %ld\n", stack->number_of_elems);
 
     *top_elem = (stack->data)[stack->number_of_elems - 1];
 
     if (stack->number_of_elems - 1 == (stack->capacity / (2 * scale_factor))) {
-        stack->capacity /= scale_factor;
+        stack->capacity = stack->capacity > default_capacity
+                            ? stack->capacity / scale_factor
+                            : default_capacity + 2;
         stack_realloc(stack);
     }
 
-    let_the_canaries_sing(stack);
-
     stack->number_of_elems--;
+
+    let_the_canaries_sing(stack);
 
     hash_update(stack);
 
@@ -146,7 +152,7 @@ stack_error stack_assert(stack_struct* stack) {
         abort();
     }
 
-     if (stack->capacity <= 0) {
+    if (stack->capacity <= 0) {
         stack->error_code = stack_error::WRONG_CAPACITY;
         dump(stack);
         abort();
@@ -164,27 +170,27 @@ stack_error stack_assert(stack_struct* stack) {
         abort();
     }
 
-    uint32_t given_data_hash =   (uint32_t)stack->data_hash;
+    uint32_t    given_data_hash = stack->data_hash;
     uint32_t expected_data_hash = murmurhash_32((const uint8_t*)stack->data, (size_t)stack->number_of_elems * sizeof(stack->data[0]));
 
     if (given_data_hash != expected_data_hash) {
         stack->error_code = stack_error::WEIRD_DATA_HASH;
-        fprintf(stderr, "hash diff: %zd \n", expected_data_hash - stack->data_hash);
-        fprintf(stderr, "expected data hash: %"PRIu32" \n", expected_data_hash);
-        fprintf(stderr, "given data hash: %ld \n", stack->data_hash);
+        fprintf(stderr, "hash diff: %u \n", expected_data_hash - stack->data_hash);
+        fprintf(stderr, "expected data hash: %u \n", expected_data_hash);
+        fprintf(stderr, "given data hash: %u \n", stack->data_hash);
         dump(stack);
         abort();
     }
 
-    uint32_t given_struct_hash = (uint32_t)stack->struct_hash;
+    uint32_t given_struct_hash = stack->struct_hash;
     stack->struct_hash = 0;
     uint32_t expected_struct_hash = murmurhash_32((const uint8_t*)stack, sizeof(stack));
 
     if (given_struct_hash != expected_struct_hash) {
         stack->error_code = stack_error::WEIRD_STRUCT_HASH;
-        fprintf(stderr, "hash diff: %ld \n", expected_struct_hash - stack->struct_hash);
-        fprintf(stderr, "expected struct hash:  %"PRIu32" \n", expected_struct_hash);
-        fprintf(stderr, "given struct hash: %ld \n", stack->struct_hash);
+        fprintf(stderr, "hash diff: %u \n", expected_struct_hash - stack->struct_hash);
+        fprintf(stderr, "expected struct hash:  %u \n", expected_struct_hash);
+        fprintf(stderr, "given struct hash: %u \n", stack->struct_hash);
         dump(stack);
         abort();
     }
@@ -196,8 +202,8 @@ stack_error stack_assert(stack_struct* stack) {
 
 void_sex dump(stack_struct* stack) {
     fprintf(stderr, "Stack_condition - %s \n", stack_error_to_str(stack->error_code));
-    fprintf(stderr, "Data hash: %zd  \n", stack->data_hash);
-    fprintf(stderr, "Stack hash: %zd  \n", stack->struct_hash);
+    fprintf(stderr, "Data hash: %u  \n", stack->data_hash);
+    fprintf(stderr, "Stack hash: %u  \n", stack->struct_hash);
     fprintf(stderr, "Left canary in struct: 0x%lX  \n", stack->canary_beginning);
     fprintf(stderr, "Right canary in struct: 0x%lX \n", stack->canary_end);
     fprintf(stderr, "number of elements: %zd \n", stack->number_of_elems);
@@ -226,13 +232,14 @@ static void_sex poison(stack_struct* stack) {
 
 //---------------------------------- STACK REALLOC ------------------------------------
 
-stack_error stack_realloc(stack_struct* stack) {
-    stack_assert(stack);
+static stack_error stack_realloc(stack_struct* stack) {
+    assert(stack != NULL);
 
     stack->data = (stack_t*)realloc(stack->data, (size_t)(stack->capacity + 2) * sizeof(stack_t));
     //FIXME подумаьб  над тем что будет если stack_t бужет большего размера
     if (stack == NULL) {
         return stack_error::MEM_ALLOC_ERR;
+        return stack->error_code;
     }
     let_the_canaries_sing(stack);
 

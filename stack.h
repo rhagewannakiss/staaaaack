@@ -31,8 +31,8 @@ typedef struct stack_struct {
     stack_t*           data;
     ssize_t number_of_elems;
     ssize_t        capacity;
-    ssize_t       data_hash;
-    ssize_t     struct_hash;
+    uint32_t      data_hash;
+    uint32_t    struct_hash;
     size_t       canary_end;
     stack_error  error_code;
 } stack_struct;
@@ -40,7 +40,6 @@ typedef struct stack_struct {
 stack_error stack_push(stack_struct* stack, stack_t new_elem);
 stack_error stack_pop(stack_struct* stack, stack_t* top_elem);
 const char* stack_error_to_str(stack_error error);
-stack_error stack_realloc(stack_struct* stack);
 stack_error stack_assert(stack_struct* stack);
 stack_error Ctor_stack(stack_struct* stack);
 stack_error Dtor_stack(stack_struct* stack);
