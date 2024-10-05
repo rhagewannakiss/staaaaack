@@ -4,24 +4,10 @@
 #include  <stdio.h>
 #include <stdlib.h>
 
+#define TOSTR(x) #x
+
 typedef void void_sex;
-
-typedef int Stack_t;
-
-typedef struct Stack_struct {
-    size_t canary_beginning;
-    Stack_t*           data;
-    ssize_t number_of_elems;
-    ssize_t        capacity;
-    size_t       canary_end;
-    size_t      stack_error;
-} Stack_struct;
-
-// typedef enum PASSWORD_VERIFICATION_STATUS {
-//     PASSWORD_VERIFICATED = 1,
-//     WRONG_PASSWORD       = 0,
-//     //хз пока что нужно ли это вообще можно удалить будет потом
-// };
+typedef size_t Stack_t;
 
 typedef enum ERROR_CASE {
     EVERYTHING_IS_OK =         -1,
@@ -37,13 +23,26 @@ typedef enum ERROR_CASE {
     NULL_PTR =                  10,
 } stack_error;
 
-typedef enum IS_POISON {
-    IS_POISON    = 1,
-    NOT_A_POISON = 0
-} poison_check;
+typedef struct Stack_struct {
+    size_t canary_beginning;
+    Stack_t*           data;
+    ssize_t number_of_elems;
+    ssize_t        capacity;
+    ssize_t       data_hash;
+    ssize_t     struct_hash;
+    size_t       canary_end;
+    stack_error  error_code;
+} Stack_struct;
+
+// typedef enum PASSWORD_VERIFICATION_STATUS {
+//     PASSWORD_VERIFICATED = 1,
+//     WRONG_PASSWORD       = 0,
+//     //хз пока что нужно ли это вообще можно удалить будет потом
+// };
 
 stack_error stack_push(Stack_struct* stack, Stack_t new_elem);
 stack_error stack_pop(Stack_struct* stack, Stack_t* top_elem);
+const char* stack_error_to_str(stack_error error);
 stack_error stack_realloc(Stack_struct* stack);
 stack_error stack_assert(Stack_struct* stack);
 void_sex    printf_stack(Stack_struct* stack);
@@ -53,4 +52,7 @@ stack_error Dtor_stack(Stack_struct* stack);
 const int default_capacity = 32;
 const int scale_factor = 2;
 
+
+
 #endif // STACK_H_
+

@@ -6,17 +6,19 @@
 #include  "stack.h"
 #include   "hash.h"
 
+//---------------------------- MUR MUR 32 HASH SCRAMBLE ----------------------------
+
 static uint32_t murmur_32_scramble(uint32_t k);
 
 //--------------------------------- MUR MUR 32 HASH --------------------------------
 
-uint32_t murmurhash_32(const uint8_t* key, size_t len, uint32_t seed) {
+uint32_t murmurhash_32(const uint8_t* key, ssize_t num_of_elems) {
     assert(key != NULL);
 
     uint32_t k = 0;
-	uint32_t h = seed;
+	uint32_t h = 0x143B;
 
-    for (size_t i = len >> 2; i; i--) {
+    for (ssize_t i = num_of_elems >> 2; i; i--) {
         memcpy(&k, key, sizeof(uint32_t));
         key += sizeof(uint32_t);
         h ^= murmur_32_scramble(k);
@@ -25,14 +27,14 @@ uint32_t murmurhash_32(const uint8_t* key, size_t len, uint32_t seed) {
     }
 
     k = 0;
-    for (size_t i = len & 3; i; i--) {
+    for (ssize_t i = num_of_elems & 3; i; i--) {
         k <<= 8;
         k |= key[i - 1];
     }
 
     h ^= murmur_32_scramble(k);
 
-	h ^= len;
+	h ^= (uint32_t)num_of_elems;
 	h ^= h >> 16;
 	h *= 0x85ebca6b;
 	h ^= h >> 13;
@@ -41,7 +43,7 @@ uint32_t murmurhash_32(const uint8_t* key, size_t len, uint32_t seed) {
 	return h;
 }
 
-//--------------------------------- MUR MUR 32 SCRUMBLE ---------------------------
+//---------------------------- MUR MUR 32 HASH SCRAMBLE ----------------------------
 
 static uint32_t murmur_32_scramble(uint32_t k) {
     k *= 0xcc9e2d51;
@@ -49,176 +51,3 @@ static uint32_t murmur_32_scramble(uint32_t k) {
     k *= 0x1b873593;
     return k;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

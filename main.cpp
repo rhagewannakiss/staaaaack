@@ -25,7 +25,7 @@ int main(/*int argc, char* argv[] */) {
 
     Stack_t top_elem = 0;
     stack_pop(&stk, &top_elem);
-    fprintf(stderr, "Popped element: %c \n", top_elem);
+    fprintf(stderr, "Popped element: %lu \n", top_elem);
 
     printf_stack(&stk);
 
