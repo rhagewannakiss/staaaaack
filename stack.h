@@ -7,7 +7,7 @@
 #define TOSTR(x) #x
 
 typedef void void_sex;
-typedef size_t Stack_t;
+typedef size_t stack_t;
 
 typedef enum ERROR_CASE {
     EVERYTHING_IS_OK =         -1,
@@ -21,38 +21,36 @@ typedef enum ERROR_CASE {
     DEAD_RIGHT_STRUCT_CANARY =  8,
     EMPTY_TOP_ELEM =            9,
     NULL_PTR =                  10,
+    WEIRD_STRUCT_HASH =         11,
+    WEIRD_DATA_HASH =           12,
+    ZERO_ELEMS =                13
 } stack_error;
 
-typedef struct Stack_struct {
+typedef struct stack_struct {
     size_t canary_beginning;
-    Stack_t*           data;
+    stack_t*           data;
     ssize_t number_of_elems;
     ssize_t        capacity;
     ssize_t       data_hash;
     ssize_t     struct_hash;
     size_t       canary_end;
     stack_error  error_code;
-} Stack_struct;
+} stack_struct;
 
-// typedef enum PASSWORD_VERIFICATION_STATUS {
-//     PASSWORD_VERIFICATED = 1,
-//     WRONG_PASSWORD       = 0,
-//     //хз пока что нужно ли это вообще можно удалить будет потом
-// };
-
-stack_error stack_push(Stack_struct* stack, Stack_t new_elem);
-stack_error stack_pop(Stack_struct* stack, Stack_t* top_elem);
+stack_error stack_push(stack_struct* stack, stack_t new_elem);
+stack_error stack_pop(stack_struct* stack, stack_t* top_elem);
 const char* stack_error_to_str(stack_error error);
-stack_error stack_realloc(Stack_struct* stack);
-stack_error stack_assert(Stack_struct* stack);
-void_sex    printf_stack(Stack_struct* stack);
-stack_error Ctor_stack(Stack_struct* stack);
-stack_error Dtor_stack(Stack_struct* stack);
+stack_error stack_realloc(stack_struct* stack);
+stack_error stack_assert(stack_struct* stack);
+stack_error Ctor_stack(stack_struct* stack);
+stack_error Dtor_stack(stack_struct* stack);
+void_sex    dump(stack_struct* stack);
 
-const int default_capacity = 32;
-const int scale_factor = 2;
+static const int default_capacity = 32;
+static const int scale_factor = 2;
 
-
+static const size_t canary_data_beggining = 0xCA3AC;
+static const size_t canary_data_end = 0xBA51C;
 
 #endif // STACK_H_
 

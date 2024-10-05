@@ -12,13 +12,13 @@ static uint32_t murmur_32_scramble(uint32_t k);
 
 //--------------------------------- MUR MUR 32 HASH --------------------------------
 
-uint32_t murmurhash_32(const uint8_t* key, ssize_t num_of_elems) {
+uint32_t murmurhash_32(const uint8_t* key, size_t num_of_elems) {
     assert(key != NULL);
 
     uint32_t k = 0;
 	uint32_t h = 0x143B;
 
-    for (ssize_t i = num_of_elems >> 2; i; i--) {
+    for (size_t i = num_of_elems >> 2; i; i--) {
         memcpy(&k, key, sizeof(uint32_t));
         key += sizeof(uint32_t);
         h ^= murmur_32_scramble(k);
@@ -27,7 +27,7 @@ uint32_t murmurhash_32(const uint8_t* key, ssize_t num_of_elems) {
     }
 
     k = 0;
-    for (ssize_t i = num_of_elems & 3; i; i--) {
+    for (size_t i = num_of_elems & 3; i; i--) {
         k <<= 8;
         k |= key[i - 1];
     }
